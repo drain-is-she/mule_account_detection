@@ -1,0 +1,75 @@
+import polars as pl
+import pandas as pd
+import networkx as nx
+from tqdm import tqdm
+
+DATA_DIR = "DATA"
+FEATURE_DIR = "features"
+
+print("Loading transactions...")
+
+txn = pl.scan_parquet(f"{DATA_DIR}/transactions_batch-*/*.parquet")
+
+edges = txn.select([
+    "account_id",
+    "counterparty_id"
+]).collect()
+
+edges = edges.to_pandas()
+
+print("Total edges:", len(edges))
+
+
+print("Building graph...")
+
+G = nx.DiGraph()
+
+for _, row in tqdm(edges.iterrows(), total=len(edges)):
+    G.add_edge(row["account_id"], row["counterparty_id"])
+
+
+print("Computing graph features...")
+
+# in-degree
+in_degree = dict(G.in_degree())
+
+# out-degree
+out_degree = dict(G.out_degree())
+
+# pagerank
+pagerank = nx.pagerank(G)
+
+# clustering
+clustering = nx.clustering(G.to_undirected())
+
+
+print("Creating dataframe...")
+
+graph_features = pd.DataFrame({
+    "account_id": list(G.nodes())
+})
+
+graph_features["in_degree"] = graph_features["account_id"].map(in_degree)
+graph_features["out_degree"] = graph_features["account_id"].map(out_degree)
+graph_features["pagerank"] = graph_features["account_id"].map(pagerank)
+graph_features["clustering"] = graph_features["account_id"].map(clustering)
+
+graph_features["in_degree"] = graph_features["in_degree"].fillna(0)
+graph_features["out_degree"] = graph_features["out_degree"].fillna(0)
+
+# ratio features
+graph_features["fan_ratio"] = graph_features["in_degree"] / (
+    graph_features["out_degree"] + 1
+)
+
+print(graph_features.head())
+
+
+print("Saving graph features...")
+
+graph_features.to_parquet(
+    f"{FEATURE_DIR}/graph_features.parquet",
+    index=False
+)
+
+print("Graph features saved.")
