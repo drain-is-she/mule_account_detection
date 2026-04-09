@@ -4,7 +4,7 @@ Detects money mule accounts in transaction networks using a GraphSAGE neural net
 
 # How it works
 
-Transaction data is modelled as a graph — accounts are nodes, transactions are edges. A two-layer GraphSAGE model learns a mule probability per node by aggregating each account's own features with those of its transaction neighbours. The GNN output is then blended with LightGBM predictions, with the optimal blend weight found by grid search on the validation set.
+Transaction data is modelled as a graph accounts are nodes, transactions are edges. A two-layer GraphSAGE model learns a mule probability per node by aggregating each account's own features with those of its transaction neighbours. The GNN output is then blended with LightGBM predictions, with the optimal blend weight found by grid search on the validation set.
 
 # Usage
 # Train the GNN
