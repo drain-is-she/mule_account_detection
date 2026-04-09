@@ -20,6 +20,7 @@ torch  , torch-geometric , polars , pandas , scikit-learn ,lightgbm , numpy
 # Key config
 
 | Parameter | Default |
+|-----------|---------|
 | Max edges | 2,000,000 |
 | Hidden dims | 128 → 64 |
 | Dropout | 0.3 |
