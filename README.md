@@ -1,7 +1,7 @@
 # GNN Mule Detection
 
 Detects money mule accounts in a transaction network using a two-layer GraphSAGE
-model ensembled with LightGBM, on RBI-sourced transaction data (~20 lakh nodes).
+model ensembled with LightGBM, on RBI-sourced transaction data (~20 lakh nodes)
 
 ## How it works
 
