@@ -2,6 +2,7 @@
 
 Detects money mule accounts in a transaction network using a two-layer GraphSAGE model ensembled with LightGBM, on RBI-sourced transaction data (~20 lakh nodes).
 
+Built for Razorpay's **AI Risk Manager** buildathon track. This is a **defense-only** risk scorer — it flags accounts for human review. It does not freeze, block, or take any autonomous action on an account.
 
 ## The problem
 
@@ -116,7 +117,8 @@ python src/predict.py
 ## Limitations & next steps
 
 - **Split is random, not temporal.** A time-based split is needed to get an honest read on deployment performance.
-
+- **Node ordering is not yet shared across scripts.** `gnn.py` and `feature_engineering.py` each derive their own account→node-index mapping independently; row-aligning their outputs (as `train_lgb.py` and `ensemble.py` currently do) risks silently mismatching features/labels/predictions. Fix: persist one canonical `account_id → node_id` mapping and join against it everywhere.
+- **Graph and community features aren't merged into model input yet.** `graph_features.py` and `community_features.py` compute real signal (PageRank, clustering coefficient, Louvain community) that neither model currently consumes.
 - **Planned feature additions:** transaction entropy, in-out time-delta variance, node degree centrality, velocity of exhaustion, first-transaction magnitude ratio, window-based burstiness score.
 
 ## Scope
