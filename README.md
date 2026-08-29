@@ -124,3 +124,10 @@ python src/predict.py
 ## Scope
 
 This system produces a risk score for human review. It does not freeze, block, or take any automated action against an account.
+
+## Dataset used 
+https://www.kaggle.com/datasets/abhyudayrbih/rbih-nfpc-phase-2/data
+
+## Model Interpretation
+
+LightGBM carries most of the predictive signal, while the GNN provides only a marginal performance improvement. This suggests that the engineered tabular transaction features already capture much of the discriminative information, with the graph structure contributing additional but relatively limited relational signal.
