@@ -10,25 +10,24 @@ A false positive occurs when a legitimate account is classified
 as a mule.
 
 ### Summary
-
-- Total legitimate accounts: 9,331
-- False positives: 33
-- False-positive rate: 0.35%
+  Total legitimate accounts: 9,331
+  False positives: 33
+  False-positive rate: 0.35%
 
 ### Exception 
 
 **Account:** XXXXX
 
-- Actual class: Legitimate
-- Predicted class: Mule
-- Risk score: 0.82
+ Actual class: Legitimate
+ Predicted class: Mule
+ Risk score: 0.82
 
 #### Why was it flagged?
 
-- High transaction velocity
-- High number of counterparties
-- Unusual transaction concentration
-- Network structure resembling mule behavior
+ High transaction velocity
+ High number of counterparties
+ Unusual transaction concentration
+ Network structure resembling mule behavior
 
 #### Why was this likely a false positive?
 
@@ -44,24 +43,24 @@ as legitimate.
 
 ### Summary
 
-- Actual mule accounts: 244
-- False negatives: 88
-- False-negative rate: 36.07%
+ Actual mule accounts: 244
+ False negatives: 88
+ False-negative rate: 36.07%
 
 ### Exception 
 
 **Account:** XXXXX
 
-- Actual class: Mule
-- Predicted class: Legitimate
-- Risk score: 0.31
+ Actual class: Mule
+ Predicted class: Legitimate
+ Risk score: 0.31
 
 #### Why was it missed?
 
-- Low transaction volume
-- Limited graph connectivity
-- Weak behavioral anomaly
-- Insufficient network evidence
+ Low transaction volume
+ Limited graph connectivity
+ Weak behavioral anomaly
+ Insufficient network evidence
 
 #### What could improve detection?
 
