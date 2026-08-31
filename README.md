@@ -2,7 +2,7 @@
 
 Detects money mule accounts in a transaction network using a two-layer GraphSAGE model ensembled with LightGBM, on RBI-sourced transaction data (~20 lakh nodes).
 
-Built for Razorpay's **AI Risk Manager** buildathon track. This is a **defense-only** risk scorer — it flags accounts for human review. It does not freeze, block, or take any autonomous action on an account.
+ This is a **defense-only** risk scorer — it flags accounts for human review. It does not freeze, block, or take any autonomous action on an account.
 
 ## The problem
 
