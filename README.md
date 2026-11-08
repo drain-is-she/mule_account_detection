@@ -76,7 +76,7 @@ python src/gnn.py
 python src/train_lgb.py
 python src/ensemble.py
 python src/evaluate.py
-python src/predict.py
+python src/predict.py --account-ids /path/to/verified_score_account_ids.npy
 ```
 
 ## Key config
@@ -131,3 +131,19 @@ https://www.kaggle.com/datasets/abhyudayrbih/rbih-nfpc-phase-2/data
 ## Model Interpretation
 
 LightGBM carries most of the predictive signal, while the GNN provides only a marginal performance improvement. This suggests that the engineered tabular transaction features already capture much of the discriminative information, with the graph structure contributing additional but relatively limited relational signal.
+
+## Exporting account scores safely
+
+`src/predict.py` requires `--account-ids`: a one-dimensional NumPy array of unique integer or Unicode-string account IDs in **exactly the same order** as `--probabilities` (default: `outputs/ensemble_probs.npy`). Use Unicode strings to preserve leading zeros. Object/pickle arrays are not accepted. The exporter no longer reconstructs IDs from label-file order or truncates scores to match labels.
+
+Equal lengths do not prove identity alignment. Supply IDs saved alongside the score-producing pipeline after verifying its ordering. In particular, the independently generated `node_ids.npy` is not automatically a valid mapping for ensemble scores. The upstream node-ordering limitation above is still unresolved; this export fix does not repair misaligned models or validate existing metrics.
+
+Invalid dimensions, empty/mismatched arrays, duplicate/blank IDs, and nonfinite/out-of-range probabilities are rejected before writing the CSV. Rows are sorted by descending risk score. The flag retains the original strict `probability > threshold` rule (`--threshold` defaults to 0.5); it is a demo cutoff, not a validated operating threshold. Scores remain for human review only.
+
+Run the synthetic export tests with NumPy installed (validated with Python 3.13 and NumPy 2.5.4):
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+These tests cover account/score pairing through sorting, input rejection, explicit mapping requirements, and CSV export without training or access to transaction data.
