@@ -147,3 +147,15 @@ python -m unittest discover -s tests -v
 ```
 
 These tests cover account/score pairing through sorting, input rejection, explicit mapping requirements, and CSV export without training or access to transaction data.
+
+## Temporal overlap metric
+
+`src/temporal_metrics.py` calculates duration-based intersection-over-union for two time spans. Disjoint or merely touching spans have zero overlap; identical nonzero-duration spans score 1. Missing boundaries or a zero-duration union return 0, and reversed intervals raise an error. The evaluator converts pandas `NaT` boundaries from empty account selections to missing boundaries before calling this helper.
+
+This remains a comparison of the **global earliest/latest transaction spans** of selected accounts, not event-level overlap or per-account detection accuracy. The existing transaction-file sampling and model-ordering limitations still apply. Fixing interval arithmetic does not validate the model or recompute the published results.
+
+The regression suite includes synthetic overlap cases and checks symmetry and the [0, 1] range. Run just these dependency-free tests with:
+
+```sh
+python -m unittest discover -s tests -p test_temporal_metrics.py -v
+```

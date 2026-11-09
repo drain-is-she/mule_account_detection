@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import glob
 
+from temporal_metrics import temporal_interval_iou
+
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
@@ -113,19 +115,12 @@ pred_start = pred_tx["transaction_timestamp"].min()
 pred_end = pred_tx["transaction_timestamp"].max()
 
 
-intersection_start = max(true_start, pred_start)
-intersection_end = min(true_end, pred_end)
-
-intersection = (intersection_end - intersection_start).total_seconds()
-
-
-union_start = min(true_start, pred_start)
-union_end = max(true_end, pred_end)
-
-union = (union_end - union_start).total_seconds()
-
-
-temporal_iou = intersection / union if union > 0 else 0
+# Empty account selections produce pandas NaT boundaries; represent them as
+# absent intervals before applying the duration-overlap metric.
+boundaries = [true_start, true_end, pred_start, pred_end]
+temporal_iou = temporal_interval_iou(
+    *(None if pd.isna(value) else value for value in boundaries)
+)
 
 print("\nTemporal IoU:", round(temporal_iou,4))
 
