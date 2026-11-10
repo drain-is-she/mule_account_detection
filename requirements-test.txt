@@ -1,0 +1,2 @@
+# Synthetic regression tests only; excludes model-training dependencies.
+numpy==2.5.4

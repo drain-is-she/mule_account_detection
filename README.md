@@ -49,9 +49,25 @@ Run in this order:
 
 ## Setup
 
+### Regression tests and score export
+
+Use Python 3.13 and the minimal tested environment:
+
 ```bash
-pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-test.txt
+python -m pip check
+python -m unittest discover -s tests -v
 ```
+
+On Windows, activate with `.venv\Scripts\activate`. These tests use synthetic arrays and timestamps; no transaction data, training, GPU, or API credentials are needed. NumPy is the only third-party dependency for this suite and the standalone score exporter.
+
+The [Regression tests workflow](https://github.com/drain-is-she/mule_account_detection/actions/workflows/tests.yml) runs the suite on pushes to `main`, pull requests, and manual dispatches. It does not run the training or full evaluation scripts.
+
+### Training pipeline status
+
+A complete verified training environment is not yet provided. `requirements-test.txt` does **not** install the pandas, parquet, graph, PyTorch/PyG, LightGBM, and evaluation dependencies used elsewhere. The former instruction referenced a nonexistent `requirements.txt`; installing the test environment does not make the full pipeline runnable. The node-ordering and missing-artifact limitations below still need resolution before reproducing model results.
 
 Expected data layout:
 
