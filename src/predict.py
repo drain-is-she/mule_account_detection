@@ -25,7 +25,7 @@ def build_predictions(accounts, probabilities, threshold=0.5):
         raise ValueError("Account IDs must be unique.")
     return [
         {"account_id": accounts[i].item(), "mule_probability": float(probabilities[i]),
-         "is_predicted_mule": int(probabilities[i] > threshold)}
+         "is_predicted_mule": int(probabilities[i] >= threshold)}
         for i in np.argsort(-probabilities, kind="stable")
     ]
 
@@ -36,7 +36,8 @@ def main():
                         help="NPY account IDs in exactly the same order as the probability array.")
     parser.add_argument("--probabilities", default="outputs/ensemble_probs.npy")
     parser.add_argument("--output", default="outputs/final_predictions.csv")
-    parser.add_argument("--threshold", type=float, default=0.5)
+    parser.add_argument("--threshold", type=float, default=0.5,
+                        help="Flag scores greater than or equal to this value (default: 0.5).")
     args = parser.parse_args()
     rows = build_predictions(np.load(args.account_ids, allow_pickle=False),
                              np.load(args.probabilities, allow_pickle=False), args.threshold)

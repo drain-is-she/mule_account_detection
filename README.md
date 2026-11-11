@@ -154,7 +154,7 @@ LightGBM carries most of the predictive signal, while the GNN provides only a ma
 
 Equal lengths do not prove identity alignment. Supply IDs saved alongside the score-producing pipeline after verifying its ordering. In particular, the independently generated `node_ids.npy` is not automatically a valid mapping for ensemble scores. The upstream node-ordering limitation above is still unresolved; this export fix does not repair misaligned models or validate existing metrics.
 
-Invalid dimensions, empty/mismatched arrays, duplicate/blank IDs, and nonfinite/out-of-range probabilities are rejected before writing the CSV. Rows are sorted by descending risk score. The flag retains the original strict `probability > threshold` rule (`--threshold` defaults to 0.5); it is a demo cutoff, not a validated operating threshold. Scores remain for human review only.
+Invalid dimensions, empty/mismatched arrays, duplicate/blank IDs, and nonfinite/out-of-range probabilities are rejected before writing the CSV. Rows are sorted by descending risk score. The flag uses `probability >= threshold`, matching `src/evaluate.py`. Scores exactly at the cutoff are therefore flagged, correcting the former exporter-only strict `>` behavior. `--threshold` defaults to 0.5; it is a demo cutoff, not a validated operating threshold. To reproduce evaluated flags, pass the same threshold used for evaluation; the exporter does not automatically load its selected threshold. Scores remain for human review only.
 
 Run the synthetic export tests with NumPy installed (validated with Python 3.13 and NumPy 2.5.4):
 

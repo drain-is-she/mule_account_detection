@@ -18,10 +18,19 @@ class PredictionTests(unittest.TestCase):
     def test_identity_survives_ranking(self):
         rows = predict.build_predictions(["account-z", "account-a", "account-b"], [0.2, 0.9, 0.5])
         self.assertEqual([r["account_id"] for r in rows], ["account-a", "account-b", "account-z"])
-        self.assertEqual([r["is_predicted_mule"] for r in rows], [1, 0, 0])
+        self.assertEqual([r["is_predicted_mule"] for r in rows], [1, 1, 0])
 
     def test_equal_scores_preserve_input_order(self):
         self.assertEqual([r["account_id"] for r in predict.build_predictions([9, 2], [0.8, 0.8])], [9, 2])
+
+    def test_threshold_equality_matches_evaluation(self):
+        for threshold in [0.0, 0.5, 0.8, 1.0]:
+            with self.subTest(threshold=threshold):
+                scores = [0.0, 0.49, 0.5, 0.79, 0.8, 1.0]
+                rows = predict.build_predictions(list(range(len(scores))), scores, threshold)
+                flags = {row["account_id"]: row["is_predicted_mule"] for row in rows}
+                self.assertEqual([flags[i] for i in range(len(scores))],
+                                 [int(score >= threshold) for score in scores])
 
     def test_invalid_inputs(self):
         cases = [([], []), ([1], [0.1, 0.2]), ([[1]], [0.2]), ([1], [[0.2]]),
@@ -41,11 +50,12 @@ class PredictionTests(unittest.TestCase):
             np.save(root / "scores.npy", [0.1, 0.8])
             output = root / "nested/predictions.csv"
             args = [sys.executable, str(SCRIPT), "--account-ids", str(root / "ids.npy"),
-                    "--probabilities", str(root / "scores.npy"), "--output", str(output)]
+                    "--probabilities", str(root / "scores.npy"), "--output", str(output), "--threshold", "0.8"]
             subprocess.run(args, check=True, capture_output=True)
             with output.open() as handle:
                 rows = list(csv.DictReader(handle))
             self.assertEqual([r["account_id"] for r in rows], ["002", "007"])
+            self.assertEqual([r["is_predicted_mule"] for r in rows], ["1", "0"])
             original = output.read_bytes()
             np.save(root / "scores.npy", [0.8])
             self.assertNotEqual(subprocess.run(args, capture_output=True).returncode, 0)
