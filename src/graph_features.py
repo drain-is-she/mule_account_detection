@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import polars as pl
 import pandas as pd
 import networkx as nx
@@ -67,8 +69,11 @@ print(graph_features.head())
 
 print("Saving graph features...")
 
+output_path = Path(FEATURE_DIR) / "graph_features.parquet"
+output_path.parent.mkdir(parents=True, exist_ok=True)
+
 graph_features.to_parquet(
-    f"{FEATURE_DIR}/graph_features.parquet",
+    output_path,
     index=False
 )
 
