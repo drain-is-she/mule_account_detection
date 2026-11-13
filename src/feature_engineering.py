@@ -4,6 +4,8 @@ from sklearn.preprocessing import StandardScaler
 import os
 import glob
 
+from account_ids import account_id_array
+
 # define data paths and ensure output directory exists
 DATA_DIR = "DATA"
 OUTPUT_DIR = "features"
@@ -101,6 +103,10 @@ scaler = StandardScaler()
 feature_cols = features.columns.drop("node_id")
 features[feature_cols] = scaler.fit_transform(features[feature_cols])
 
+# Preserve original account identities in exactly the feature-matrix row order.
+# Validate before writing any output; node_id is only an internal row position.
+account_ids = account_id_array(features.index.to_numpy())
+
 # save features in both numpy and parquet formats for downstream model consumption
 print("Saving features...")
 np.save(
@@ -110,10 +116,11 @@ np.save(
 
 np.save(
     os.path.join(OUTPUT_DIR, "node_ids.npy"),
-    features["node_id"].values
+    account_ids,
+    allow_pickle=False
 )
 
-features.to_parquet(
+features.rename_axis("account_id").reset_index().to_parquet(
     os.path.join(OUTPUT_DIR, "node_features.parquet"),
     index=False
 )

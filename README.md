@@ -175,3 +175,11 @@ The regression suite includes synthetic overlap cases and checks symmetry and th
 ```sh
 python -m unittest discover -s tests -p test_temporal_metrics.py -v
 ```
+
+## Feature account identities
+
+`src/feature_engineering.py` now writes original account IDs to `features/node_ids.npy`, in the same row order as `features/node_features.npy`. Previously it wrote internal row positions (`0, 1, ...`), which cannot identify accounts. String IDs are stored as Unicode arrays so leading zeros survive and files can be loaded with `allow_pickle=False`. Unsupported, missing, blank, or duplicate identifiers are rejected before output is written.
+
+`features/node_features.parquet` also retains an explicit `account_id` column alongside the internal `node_id` and numeric features. Consumers must exclude both identifiers when selecting model input columns.
+
+Existing artifacts are not migrated automatically: rebuild feature artifacts from the original inputs. This change preserves the feature builder's mapping only. It does not establish that independently generated GNN probabilities, LightGBM probabilities, labels, masks, or files under `outputs/` use that same ordering; those joins still need to be verified before ensembling or exporting predictions.
