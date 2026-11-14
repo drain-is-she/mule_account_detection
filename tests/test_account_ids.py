@@ -22,6 +22,24 @@ class AccountIdTests(unittest.TestCase):
             np.save(path, ids, allow_pickle=False)
             np.testing.assert_array_equal(np.load(path, allow_pickle=False), original)
 
+    def test_mixed_python_sequences_are_rejected_before_coercion(self):
+        for values in [["one", 2], ["one", None], [True, 2], ["one", 2.5]]:
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                module.account_id_array(values)
+
+    def test_integer_object_index_preserves_large_values(self):
+        original = np.array([2**63 + 5, 7], dtype=object)
+        ids = module.account_id_array(original)
+        self.assertEqual(ids.dtype.kind, "u")
+        self.assertEqual(ids.tolist(), original.tolist())
+        signed = module.account_id_array(np.array([-5, 42], dtype=object))
+        self.assertEqual(signed.tolist(), [-5, 42])
+
+    def test_unrepresentable_integer_range_is_rejected(self):
+        for values in [[-1, 2**63], [2**64], [-(2**63) - 1]]:
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                module.account_id_array(values)
+
     def test_invalid_ids_are_rejected(self):
         cases = [[], [[1, 2]], [1, 1], [" "], [1.5], [float("nan")],
                  np.array(["one", None], dtype=object), np.array(["one", 2], dtype=object),

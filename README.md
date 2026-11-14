@@ -183,3 +183,5 @@ python -m unittest discover -s tests -p test_temporal_metrics.py -v
 `features/node_features.parquet` also retains an explicit `account_id` column alongside the internal `node_id` and numeric features. Consumers must exclude both identifiers when selecting model input columns.
 
 Existing artifacts are not migrated automatically: rebuild feature artifacts from the original inputs. This change preserves the feature builder's mapping only. It does not establish that independently generated GNN probabilities, LightGBM probabilities, labels, masks, or files under `outputs/` use that same ordering; those joins still need to be verified before ensembling or exporting predictions.
+
+Account-ID serialization validates scalar types before NumPy conversion: mixed integer/string lists, booleans, missing values, and floating-point IDs are rejected rather than coerced. Homogeneous integer object arrays are accepted and stored as signed or unsigned 64-bit integers without passing through floating point. Values that cannot fit one such array are rejected. Already-coerced input arrays cannot recover their original types; preserve source IDs before calling the serializer.
